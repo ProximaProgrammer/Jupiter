@@ -1,0 +1,86 @@
+PDS_VERSION_ID                 = PDS3                                         
+                                                                              
+/* Dataset and Product Information */                                         
+DATA_SET_NAME                  = "JUNO JUPITER JIRAM REDUCED DATA RECORD V1.0"
+DATA_SET_ID                    = "JNO-J-JIRAM-3-RDR-V1.0"                     
+PRODUCT_ID                     = JIR_IMG_RDR_2023250T012300_V01               
+PRODUCT_TYPE                   = RDR                                          
+PROCESSING_LEVEL_ID            = "3"                                          
+START_TIME                     = 2023-09-07T01:22:55.924                      
+STOP_TIME                      = 2023-09-07T01:22:56.924                      
+SPACECRAFT_CLOCK_START_COUNT   = "5/747322232:01441"                          
+SPACECRAFT_CLOCK_STOP_COUNT    = "5/747322233:01441"                          
+STANDARD_DATA_PRODUCT_ID       = "IMAGE"                                      
+PRODUCER_FULL_NAME             = "A.ADRIANI - R.NOSCHESE"                     
+INSTITUTION_NAME               = "ISTITUTO NAZIONALE DI ASTROFISICA"          
+PRODUCT_CREATION_TIME          = 2024-01-17T14:27:27.000                      
+PRODUCT_VERSION_ID             = "01"                                         
+SEQUENCE_NUMBER                = 9                                            
+SEQUENCE_SAMPLES               = 20                                           
+MD5_CHECKSUM                   = "3380026e5fc3cbcd86fb654a7dfc3a63"           
+                                                                              
+/* Mission description parameters */                                          
+INSTRUMENT_HOST_NAME           = "JUNO"                                       
+INSTRUMENT_HOST_ID             = "JNO"                                        
+COMMAND_FILE_NAME              = "jm0540_JRMa.sasf"                           
+MISSION_PHASE_NAME             = "SCIENCE ORBITS"                             
+                                                                              
+/* Instrument description parameters */                                       
+INSTRUMENT_NAME                = "JOVIAN INFRARED AURORAL MAPPER"             
+INSTRUMENT_ID                  = "JIR"                                        
+INSTRUMENT_TYPE                = "INFRARED IMAGING SPECTROMETER"              
+SOFTWARE_VERSION_ID            = ("EGSE_208", "PDS_RDR_v10")                  
+                                                                              
+ORBIT_NUMBER                   = 54                                           
+TARGET_NAME                    = "N/A"                                        
+TARGET_TYPE                    = "N/A"                                        
+TARGET_PIXELS                  = 0                                            
+JNO:TARGET_PRESENCE_FLAG       = "N/A"                                        
+                                                                              
+/* Instrument status */                                                       
+CHANNEL_ID                     = "1"       /* 0:SPECTRUM IR; 1:IMAGE */       
+EXPOSURE_DURATION              = 1 <second>                                   
+INSTRUMENT_MODE_ID             = SCI_I1_S1                                    
+INSTRUMENT_MODE_DESC           =                                              
+" SCI_I1_S1: Science, IMAGE(256x432) full acquisition, SPECTRUM (256x336) High
+Spatial and High spectral"                                                    
+                                                                              
+OBJECT                         = FILE                                         
+   RECORD_TYPE                 = FIXED_LENGTH                                 
+   FILE_RECORDS                = 256                                          
+   RECORD_BYTES                = 1728                                         
+   FRAME_TYPE                  = "SCIENCE"                                    
+   DATA_QUALITY_ID             = "1"                                          
+   DATA_QUALITY_DESC           = "0:INCOMPLETE; 1:COMPLETE"                   
+   UNIT                        = "W/(m^2*sr)"                                 
+^IMAGE                         = "JIR_IMG_RDR_2023250T012300_V01.IMG"         
+                                                                              
+/* Data Object pointers */                                                    
+OBJECT                        = IMAGE                                         
+   LINES                      = 256                                           
+   LINE_SAMPLES               = 432                                           
+   SAMPLE_TYPE                = IEEE_REAL                                     
+   SAMPLE_BITS                = 32                                            
+END_OBJECT                    = IMAGE                                         
+                                                                              
+OBJECT                        = HISTORY                                       
+   CALIBRATION_SOURCE_ID      = "JIR_IMG_TOT_RESPONSIVITY_V02.DAT"            
+   SOURCE_PRODUCT_ID          = "JIR_IMG_EDR_2023250T012300_V01.IMG"          
+   NOTE                       = " SUBTRACTION BACKGROUND ON BOARD ENABLED "   
+END_OBJECT                    = HISTORY                                       
+                                                                              
+SPICE_FILE_NAME                =                                              
+{"juno_v09.tf",                                                               
+"juno_jiram_v02.ti",                                                          
+"juno_struct_v01.ti",                                                         
+"naif0012.tls",                                                               
+"pck00010.tpc",                                                               
+"JNO_SCLKSCET.00160.tsc",                                                     
+"de440s.bsp",                                                                 
+"juno_struct_v04.bsp",                                                        
+"jup363.bsp",                                                                 
+"juno_rec_orbit.orb",                                                         
+"juno_sc_rec_230903_230909_v01.bc",                                           
+"spk_rec_230820_230927_231003.bsp"}                                           
+END_OBJECT                     = FILE                                         
+END                                                                           
