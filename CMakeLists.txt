@@ -32,5 +32,7 @@ if(APPLE)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES
+    "src/*.cpp"
+)
 add_executable(playground ${SOURCES})

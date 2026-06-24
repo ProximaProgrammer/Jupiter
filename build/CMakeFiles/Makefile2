@@ -85,12 +85,12 @@ clean: CMakeFiles/playground.dir/clean
 CMakeFiles/playground.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles --progress-num=1,2 "Built target playground"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles --progress-num=1,2,3 "Built target playground"
 .PHONY : CMakeFiles/playground.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/playground.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/playground.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles 0
 .PHONY : CMakeFiles/playground.dir/rule
@@ -102,7 +102,7 @@ playground: CMakeFiles/playground.dir/rule
 # codegen rule for target.
 CMakeFiles/playground.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles --progress-num=1,2 "Finished codegen for target playground"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles --progress-num=1,2,3 "Finished codegen for target playground"
 .PHONY : CMakeFiles/playground.dir/codegen
 
 # clean rule for target.

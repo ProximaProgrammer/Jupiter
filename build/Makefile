@@ -129,6 +129,30 @@ playground/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/build
 .PHONY : playground/fast
 
+src/core/Grid.o: src/core/Grid.cpp.o
+.PHONY : src/core/Grid.o
+
+# target to build an object file
+src/core/Grid.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/src/core/Grid.cpp.o
+.PHONY : src/core/Grid.cpp.o
+
+src/core/Grid.i: src/core/Grid.cpp.i
+.PHONY : src/core/Grid.i
+
+# target to preprocess a source file
+src/core/Grid.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/src/core/Grid.cpp.i
+.PHONY : src/core/Grid.cpp.i
+
+src/core/Grid.s: src/core/Grid.cpp.s
+.PHONY : src/core/Grid.s
+
+# target to generate assembly for a file
+src/core/Grid.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/playground.dir/build.make CMakeFiles/playground.dir/src/core/Grid.cpp.s
+.PHONY : src/core/Grid.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -162,6 +186,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... playground"
+	@echo "... src/core/Grid.o"
+	@echo "... src/core/Grid.i"
+	@echo "... src/core/Grid.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
