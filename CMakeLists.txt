@@ -1,38 +1,58 @@
-# cmake_minimum_required(VERSION 3.10.0)
-# project(weather VERSION 0.1.0 LANGUAGES C CXX)
+cmake_minimum_required(VERSION 3.20)
 
-# add_executable(weather main.cpp Log.cpp)
+project(JupiterRT VERSION 0.3.0 LANGUAGES CXX)
 
-# include(CTest)
-# enable_testing()
+option(JUPITER_ENABLE_CUDA "Build CUDA accelerated kernels for NVIDIA GPUs" OFF)
+option(JUPITER_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+option(JUPITER_NATIVE_OPT "Use native CPU optimization flags on local machine" ON)
 
-# set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-# set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-# include(CPack)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-
-
-# cmake_minimum_required(VERSION 3.10)
-# project(WeatherApp)
-
-# # Automatically finds all .cpp files in your current folder
-# file(GLOB SOURCES "*.cpp")
-
-# add_executable(WeatherApp ${SOURCES})
-
-
-cmake_minimum_required(VERSION 3.10)
-project(playground)
-
-# Force CMake to find the Mac System Headers
 if(APPLE)
-    execute_process(COMMAND xcrun --show-sdk-path OUTPUT_VARIABLE "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk" OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set(CMAKE_OSX_SYSROOT ${/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk})
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  execute_process(COMMAND xcrun --show-sdk-path
+                  OUTPUT_VARIABLE _macosx_sdk
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(_macosx_sdk)
+    set(CMAKE_OSX_SYSROOT "${_macosx_sdk}" CACHE PATH "macOS SDK" FORCE)
+  endif()
 endif()
 
-file(GLOB_RECURSE SOURCES
-    "src/*.cpp"
+file(GLOB_RECURSE JUPITER_CPP CONFIGURE_DEPENDS "src/*.cpp")
+list(FILTER JUPITER_CPP EXCLUDE REGEX ".*/src/legacy/.*")
+
+add_executable(jupiter ${JUPITER_CPP})
+target_include_directories(jupiter PRIVATE src)
+
+target_compile_options(jupiter PRIVATE
+  $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra -Wpedantic>
+  $<$<CXX_COMPILER_ID:MSVC>:/W4>
 )
-add_executable(playground ${SOURCES})
+
+if(JUPITER_NATIVE_OPT)
+  target_compile_options(jupiter PRIVATE
+    $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-O3>
+  )
+endif()
+
+if(JUPITER_WARNINGS_AS_ERRORS)
+  target_compile_options(jupiter PRIVATE
+    $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Werror>
+    $<$<CXX_COMPILER_ID:MSVC>:/WX>
+  )
+endif()
+
+if(JUPITER_ENABLE_CUDA)
+  enable_language(CUDA)
+  file(GLOB_RECURSE JUPITER_CUDA CONFIGURE_DEPENDS "src/*.cu")
+  target_sources(jupiter PRIVATE ${JUPITER_CUDA})
+  target_compile_definitions(jupiter PRIVATE JUPITER_ENABLE_CUDA=1)
+  set_property(TARGET jupiter PROPERTY CUDA_STANDARD 17)
+  set_property(TARGET jupiter PROPERTY CUDA_STANDARD_REQUIRED ON)
+  # RTX 3060 desktop/laptop = Ampere compute capability 8.6.
+  set_property(TARGET jupiter PROPERTY CUDA_ARCHITECTURES 86)
+  target_compile_options(jupiter PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--use_fast_math>)
+endif()
+
+install(TARGETS jupiter RUNTIME DESTINATION bin)

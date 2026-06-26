@@ -1,3 +1,0 @@
-/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles/playground.dir
-/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles/edit_cache.dir
-/Users/ibrahimnadeem/Documents/Jupiter/build/CMakeFiles/rebuild_cache.dir

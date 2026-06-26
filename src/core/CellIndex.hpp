@@ -10,4 +10,4 @@ struct CellIndex
     int iphi = 0;
 };
 
-}
+} // namespace Jupiter

@@ -1,0 +1,29 @@
+{
+  "version": 5,
+  "configurePresets": [
+    {
+      "name": "mac-release",
+      "displayName": "Mac CPU Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-mac-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "JUPITER_ENABLE_CUDA": "OFF"
+      }
+    },
+    {
+      "name": "cuda-rtx3060-release",
+      "displayName": "Remote CUDA RTX 3060 Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-cuda-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "JUPITER_ENABLE_CUDA": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "mac-release", "configurePreset": "mac-release" },
+    { "name": "cuda-rtx3060-release", "configurePreset": "cuda-rtx3060-release" }
+  ]
+}
