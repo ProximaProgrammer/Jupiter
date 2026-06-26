@@ -1,40 +1,27 @@
-#include "TimeStep.hpp"
+#include "physics/TimeStep.h"
+#include "physics/EOS.h"
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
 
-namespace Jupiter
-{
+namespace jrt {
 
-TimeStepReport TimeStep::ComputeCFL(const Grid& grid, double requested_dt, double cfl_safety, bool use_cfl_dt)
-{
-    TimeStepReport report;
-    report.requested_dt = requested_dt;
-    report.stable_dt = requested_dt;
-    report.used_dt = requested_dt;
-    report.max_speed_m_s = 0.0;
-    report.min_cell_length_m = std::numeric_limits<double>::infinity();
-
-    double candidate = std::numeric_limits<double>::infinity();
-
-    for (const Cell& c : grid.Cells())
-    {
-        const auto& p = c.primitive;
-        const auto& g = c.geometry;
-        const double speed = std::max(1.0,
-            std::abs(p.velocity_r) + std::abs(p.velocity_theta) + std::abs(p.velocity_phi) + std::max(0.0, p.sound_speed));
-        const double length = std::max(1.0, std::min({g.length_r, g.length_theta, g.length_phi}));
-
-        report.max_speed_m_s = std::max(report.max_speed_m_s, speed);
-        report.min_cell_length_m = std::min(report.min_cell_length_m, length);
-        candidate = std::min(candidate, cfl_safety * length / speed);
+double estimateStableDt(const Grid& g) {
+    double dt = g.cfg.max_dt_s;
+    for (std::size_t i = g.iBegin(); i < g.iEnd(); ++i) {
+        for (std::size_t j = g.jBegin(); j < g.jEnd(); ++j) {
+            const double r = g.radius(i);
+            const double s = std::max(0.08, std::sin(g.theta(j)));
+            const double dx = std::min({g.dr, r*g.dtheta, r*s*g.dphi});
+            for (std::size_t k = g.kBegin(); k < g.kEnd(); ++k) {
+                const Cell& c = g.at(i,j,k);
+                const double cs = soundSpeedIdealGas(g.cfg.gamma, c.p, c.rho);
+                const double u = std::sqrt(c.u.r*c.u.r + c.u.th*c.u.th + c.u.ph*c.u.ph);
+                dt = std::min(dt, g.cfg.cfl * dx / std::max(1.0, cs + u));
+            }
+        }
     }
-
-    if (!std::isfinite(candidate)) candidate = requested_dt;
-    report.stable_dt = candidate;
-    report.used_dt = use_cfl_dt ? std::min(requested_dt, candidate) : requested_dt;
-    return report;
+    return std::clamp(dt, g.cfg.min_dt_s, g.cfg.max_dt_s);
 }
 
-} // namespace Jupiter
+} // namespace jrt

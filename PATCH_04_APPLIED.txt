@@ -1,0 +1,7 @@
+Jupiter_v2 merge patch 04 applied at 20260626_153234
+Backup of replaced files: /Users/ibrahimnadeem/Documents/Jupiter_v2/patch04_backup_20260626_153234
+
+Build:
+  cmake -S . -B build-mac-release -DCMAKE_BUILD_TYPE=Release
+  cmake --build build-mac-release -j
+  ./build-mac-release/jupiter --steps 80 --output-every 10
