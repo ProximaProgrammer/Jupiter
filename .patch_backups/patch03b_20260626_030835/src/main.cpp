@@ -29,7 +29,6 @@ struct Args
     bool override_dt = false;
     bool override_assets = false;
     bool override_use_cuda_rt = false;
-    bool override_visualizer_modes = false;
 
     int nr = 0;
     int ntheta = 0;
@@ -38,7 +37,6 @@ struct Args
     double dt = 0.0;
     std::string assets;
     bool use_cuda_rt = false;
-    std::string visualizer_modes;
 };
 
 static Args parse_args(int argc, char** argv)
@@ -60,12 +58,11 @@ static Args parse_args(int argc, char** argv)
         else if (k == "--assets") { a.assets = need("--assets"); a.override_assets = true; }
         else if (k == "--cuda-smoke-test") a.cuda_smoke_test = true;
         else if (k == "--use-cuda-rt") { a.use_cuda_rt = true; a.override_use_cuda_rt = true; }
-        else if (k == "--viz") { a.visualizer_modes = need("--viz"); a.override_visualizer_modes = true; }
         else if (k == "--help")
         {
             std::cout << "Usage: jupiter [--config config/default.sim] [--nr N] [--ntheta N] [--nphi N]\n"
                          "               [--steps N] [--dt SEC] [--assets data/runtime]\n"
-                         "               [--cuda-smoke-test] [--use-cuda-rt] [--viz temperature,velocity]\n";
+                         "               [--cuda-smoke-test] [--use-cuda-rt]\n";
             std::exit(0);
         }
         else throw std::runtime_error("Unknown argument: " + k);
@@ -82,7 +79,6 @@ static void apply_overrides(SimConfig& cfg, const Args& args)
     if (args.override_dt) cfg.requested_dt_seconds = args.dt;
     if (args.override_assets) cfg.runtime_asset_dir = args.assets;
     if (args.override_use_cuda_rt) cfg.use_cuda_rt = args.use_cuda_rt;
-    if (args.override_visualizer_modes) cfg.visualizer_modes = args.visualizer_modes;
 }
 
 static void write_spectrum_csv(const RayResult& ray, const std::string& path)
@@ -124,12 +120,7 @@ int main(int argc, char** argv)
         TimeStepReport dt_report = TimeStep::ComputeCFL(grid, cfg.requested_dt_seconds, cfg.cfl_safety, cfg.use_cfl_dt);
 
         if (cfg.write_diagnostics) Diagnostics::AppendCSV(grid, cfg.output_dir, 0, time_seconds, dt_report);
-        VisualizerConfig viz_cfg;
-        viz_cfg.modes = cfg.visualizer_modes;
-        viz_cfg.format = cfg.visualizer_format;
-        viz_cfg.phi_index = cfg.visualizer_phi_index;
-
-        if (cfg.visualizer_enabled) Visualizer::WriteMeridionalFrames(grid, cfg.output_dir, 0, viz_cfg);
+        if (cfg.visualizer_enabled) Visualizer::WriteMeridionalTemperaturePPM(grid, cfg.output_dir, 0, cfg.visualizer_phi_index);
 
         const DynamicsConfig dyn = cfg.Dynamics();
         for (int s = 1; s <= cfg.steps; ++s)
@@ -141,7 +132,7 @@ int main(int argc, char** argv)
 
             if (cfg.write_diagnostics) Diagnostics::AppendCSV(grid, cfg.output_dir, s, time_seconds, dt_report);
             if (cfg.visualizer_enabled && (s % cfg.visualizer_every == 0))
-                Visualizer::WriteMeridionalFrames(grid, cfg.output_dir, s, viz_cfg);
+                Visualizer::WriteMeridionalTemperaturePPM(grid, cfg.output_dir, s, cfg.visualizer_phi_index);
 
             std::cout << "step " << s << " / " << cfg.steps
                       << ", dt=" << dt_report.used_dt
@@ -161,8 +152,7 @@ int main(int argc, char** argv)
         }
 
         if (cfg.visualizer_enabled)
-            std::cout << "Visualizer frames: " << cfg.output_dir << "/frames/*.ppm"
-                      << " (modes: " << cfg.visualizer_modes << ")\n";
+            std::cout << "Visualizer frames: " << cfg.output_dir << "/frames/*.ppm\n";
         if (cfg.write_diagnostics)
             std::cout << "Diagnostics: " << cfg.output_dir << "/diagnostics.csv\n";
         return 0;

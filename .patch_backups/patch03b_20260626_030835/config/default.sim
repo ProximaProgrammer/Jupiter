@@ -1,0 +1,65 @@
+# JupiterRT editable simulation config
+# Units are SI unless stated otherwise.
+
+# --- Grid resolution ---
+# Default = 96 x 64 x 128 = 786432 cells.
+# This is the smallest 3D grid I would currently trust for broad Jupiter-scale structure:
+#   nr=96: enough to separate atmosphere / molecular / supercritical / metallic regions.
+#   ntheta=64: ~2.8 deg meridional resolution, enough for belts/zones and limb variation.
+#   nphi=128: ~2.8 deg azimuthal resolution. For fast debugging, set nphi=1 or 16.
+# For quick Mac tests: nr=32, ntheta=24, nphi=48.
+nr = 96
+ntheta = 64
+nphi = 128
+
+# The current model starts at 0.20 R_J to avoid a tiny central cell and focus on observable/interior shell structure.
+r_inner_fraction = 0.20
+r_outer_fraction = 1.00
+
+# --- Time stepping ---
+# requested_dt_seconds is capped internally by CFL safety if --use-cfl-dt is enabled.
+requested_dt_seconds = 0.05
+steps = 3
+use_cfl_dt = true
+cfl_safety = 0.35
+
+# Conservative face-neighbor advection cap. Corner terms remain intentionally neglected as O(epsilon^2).
+epsilon_max = 0.01
+include_gravity = true
+include_pressure_gradient = true
+rotating_frame_sources = true
+
+# --- Initial conditions ---
+surface_temperature_K = 165.0
+deep_temperature_K = 25000.0
+surface_pressure_Pa = 1.0e5
+deep_pressure_Pa = 5.0e12
+surface_density_kg_m3 = 0.16
+deep_density_kg_m3 = 1400.0
+
+# --- Spectral/runtime assets ---
+# These paths can be symlinks. Raw data is not read by the C++ executable yet;
+# preprocessing writes data/runtime, which the executable reads.
+raw_exomol_dir = data/raw/exomol
+raw_cia_dir = data/raw/cia
+runtime_asset_dir = data/runtime
+use_runtime_tables = true
+
+# --- Radiative transfer ---
+include_doppler = true
+include_rotation_velocity = true
+use_cuda_rt = false
+opacity_scale = 1.0
+h3plus_emission_scale = 1.0
+ray_theta_index = -1    # -1 = equator
+ray_phi_index = 0
+
+# --- Output / visualizer ---
+output_dir = data/output
+write_spectrum = true
+write_diagnostics = true
+visualizer_enabled = true
+visualizer_every = 1
+visualizer_phi_index = 0
+# PPM is dependency-free and viewable with macOS Preview/open.
+visualizer_format = ppm
