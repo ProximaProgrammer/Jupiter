@@ -42,23 +42,9 @@ DynamicsConfig SimConfig::Dynamics() const
 {
     DynamicsConfig cfg;
     cfg.epsilon_max = epsilon_max;
-    cfg.use_finite_volume_advection = use_finite_volume_advection;
     cfg.include_gravity = include_gravity;
     cfg.include_pressure_gradient = include_pressure_gradient;
     cfg.rotating_frame_sources = rotating_frame_sources;
-    cfg.include_viscosity = include_viscosity;
-    cfg.include_thermal_diffusion = include_thermal_diffusion;
-    cfg.include_convective_buoyancy = include_convective_buoyancy;
-    cfg.include_radiative_relaxation = include_radiative_relaxation;
-    cfg.include_chemistry = include_chemistry;
-    cfg.enforce_boundaries = enforce_boundaries;
-    cfg.kinematic_viscosity_m2_s = kinematic_viscosity_m2_s;
-    cfg.thermal_diffusivity_m2_s = thermal_diffusivity_m2_s;
-    cfg.convective_buoyancy_strength = convective_buoyancy_strength;
-    cfg.velocity_drag_timescale_s = velocity_drag_timescale_s;
-    cfg.top_radiative_timescale_s = top_radiative_timescale_s;
-    cfg.deep_radiative_timescale_s = deep_radiative_timescale_s;
-    cfg.chemistry_timescale_s = chemistry_timescale_s;
     return cfg;
 }
 
@@ -113,23 +99,9 @@ SimConfig LoadSimConfig(const std::string& path)
     getD("cfl_safety", cfg.cfl_safety);
 
     getD("epsilon_max", cfg.epsilon_max);
-    getB("use_finite_volume_advection", cfg.use_finite_volume_advection);
     getB("include_gravity", cfg.include_gravity);
     getB("include_pressure_gradient", cfg.include_pressure_gradient);
     getB("rotating_frame_sources", cfg.rotating_frame_sources);
-    getB("include_viscosity", cfg.include_viscosity);
-    getB("include_thermal_diffusion", cfg.include_thermal_diffusion);
-    getB("include_convective_buoyancy", cfg.include_convective_buoyancy);
-    getB("include_radiative_relaxation", cfg.include_radiative_relaxation);
-    getB("include_chemistry", cfg.include_chemistry);
-    getB("enforce_boundaries", cfg.enforce_boundaries);
-    getD("kinematic_viscosity_m2_s", cfg.kinematic_viscosity_m2_s);
-    getD("thermal_diffusivity_m2_s", cfg.thermal_diffusivity_m2_s);
-    getD("convective_buoyancy_strength", cfg.convective_buoyancy_strength);
-    getD("velocity_drag_timescale_s", cfg.velocity_drag_timescale_s);
-    getD("top_radiative_timescale_s", cfg.top_radiative_timescale_s);
-    getD("deep_radiative_timescale_s", cfg.deep_radiative_timescale_s);
-    getD("chemistry_timescale_s", cfg.chemistry_timescale_s);
 
     getD("surface_temperature_K", cfg.initial.surface_temperature_K);
     getD("deep_temperature_K", cfg.initial.deep_temperature_K);
@@ -137,9 +109,6 @@ SimConfig LoadSimConfig(const std::string& path)
     getD("deep_pressure_Pa", cfg.initial.deep_pressure_Pa);
     getD("surface_density_kg_m3", cfg.initial.surface_density_kg_m3);
     getD("deep_density_kg_m3", cfg.initial.deep_density_kg_m3);
-    getD("initial_thermal_perturbation", cfg.initial.thermal_perturbation_amplitude);
-    getD("initial_velocity_perturbation_m_s", cfg.initial.velocity_perturbation_m_s);
-    getI("initial_seed_modes", cfg.initial.seed_modes);
 
     getS("raw_exomol_dir", cfg.raw_exomol_dir);
     getS("raw_cia_dir", cfg.raw_cia_dir);
@@ -155,7 +124,6 @@ SimConfig LoadSimConfig(const std::string& path)
     getI("ray_phi_index", cfg.ray_phi_index);
 
     getS("output_dir", cfg.output_dir);
-    getB("clean_output_on_start", cfg.clean_output_on_start);
     getB("write_spectrum", cfg.write_spectrum);
     getB("write_diagnostics", cfg.write_diagnostics);
     getB("visualizer_enabled", cfg.visualizer_enabled);
@@ -163,20 +131,11 @@ SimConfig LoadSimConfig(const std::string& path)
     getI("visualizer_phi_index", cfg.visualizer_phi_index);
     getS("visualizer_format", cfg.visualizer_format);
     getS("visualizer_modes", cfg.visualizer_modes);
-    getB("visualizer_dashboard", cfg.visualizer_dashboard);
-    getI("visualizer_panel_width", cfg.visualizer_panel_width);
-    getI("visualizer_panel_height", cfg.visualizer_panel_height);
-    getI("visualizer_margin", cfg.visualizer_margin);
-    getB("visualizer_write_individual", cfg.visualizer_write_individual);
-    getB("visualizer_autoscale_each_frame", cfg.visualizer_autoscale_each_frame);
 
     if (cfg.nr < 4 || cfg.ntheta < 2 || cfg.nphi < 1) throw std::runtime_error("Config grid resolution is too small.");
     if (cfg.steps < 0) throw std::runtime_error("Config steps must be nonnegative.");
     if (!(cfg.r_outer_fraction > cfg.r_inner_fraction && cfg.r_inner_fraction >= 0.0)) throw std::runtime_error("Invalid radial fractions.");
     if (cfg.visualizer_every <= 0) cfg.visualizer_every = 1;
-    if (cfg.visualizer_panel_width < 64) cfg.visualizer_panel_width = 64;
-    if (cfg.visualizer_panel_height < 64) cfg.visualizer_panel_height = 64;
-    if (cfg.visualizer_margin < 0) cfg.visualizer_margin = 0;
 
     return cfg;
 }
@@ -191,15 +150,9 @@ void PrintSimConfig(const SimConfig& cfg)
               << "  requested dt: " << cfg.requested_dt_seconds << " s"
               << (cfg.use_cfl_dt ? " with CFL cap" : " without CFL cap") << "\n"
               << "  steps: " << cfg.steps << "\n"
-              << "  physics: FV=" << (cfg.use_finite_volume_advection ? "on" : "off")
-              << ", convection=" << (cfg.include_convective_buoyancy ? "on" : "off")
-              << ", diffusion=" << (cfg.include_thermal_diffusion ? "on" : "off")
-              << ", viscosity=" << (cfg.include_viscosity ? "on" : "off")
-              << ", RT relax=" << (cfg.include_radiative_relaxation ? "on" : "off") << "\n"
               << "  runtime assets: " << cfg.runtime_asset_dir << "\n"
               << "  output: " << cfg.output_dir << "\n"
-              << "  visualizer modes: " << cfg.visualizer_modes
-              << (cfg.visualizer_dashboard ? " plus dashboard" : "") << "\n";
+              << "  visualizer modes: " << cfg.visualizer_modes << "\n";
 }
 
 } // namespace Jupiter

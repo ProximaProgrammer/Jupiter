@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <stdexcept>
 
 #include "common/Constants.hpp"
 #include "config/SimConfig.hpp"
@@ -31,7 +30,6 @@ struct Args
     bool override_assets = false;
     bool override_use_cuda_rt = false;
     bool override_visualizer_modes = false;
-    bool override_output = false;
 
     int nr = 0;
     int ntheta = 0;
@@ -41,7 +39,6 @@ struct Args
     std::string assets;
     bool use_cuda_rt = false;
     std::string visualizer_modes;
-    std::string output_dir;
 };
 
 static Args parse_args(int argc, char** argv)
@@ -64,13 +61,11 @@ static Args parse_args(int argc, char** argv)
         else if (k == "--cuda-smoke-test") a.cuda_smoke_test = true;
         else if (k == "--use-cuda-rt") { a.use_cuda_rt = true; a.override_use_cuda_rt = true; }
         else if (k == "--viz") { a.visualizer_modes = need("--viz"); a.override_visualizer_modes = true; }
-        else if (k == "--output") { a.output_dir = need("--output"); a.override_output = true; }
         else if (k == "--help")
         {
             std::cout << "Usage: jupiter [--config config/default.sim] [--nr N] [--ntheta N] [--nphi N]\n"
                          "               [--steps N] [--dt SEC] [--assets data/runtime]\n"
-                         "               [--cuda-smoke-test] [--use-cuda-rt] [--viz temperature,velocity]\n"
-                         "               [--output data/output]\n";
+                         "               [--cuda-smoke-test] [--use-cuda-rt] [--viz temperature,velocity]\n";
             std::exit(0);
         }
         else throw std::runtime_error("Unknown argument: " + k);
@@ -88,7 +83,6 @@ static void apply_overrides(SimConfig& cfg, const Args& args)
     if (args.override_assets) cfg.runtime_asset_dir = args.assets;
     if (args.override_use_cuda_rt) cfg.use_cuda_rt = args.use_cuda_rt;
     if (args.override_visualizer_modes) cfg.visualizer_modes = args.visualizer_modes;
-    if (args.override_output) cfg.output_dir = args.output_dir;
 }
 
 static void write_spectrum_csv(const RayResult& ray, const std::string& path)
@@ -108,13 +102,6 @@ int main(int argc, char** argv)
         SimConfig cfg = LoadSimConfig(args.config_path);
         apply_overrides(cfg, args);
         PrintSimConfig(cfg);
-
-        if (cfg.clean_output_on_start)
-        {
-            std::filesystem::remove_all(cfg.output_dir + "/frames");
-            std::filesystem::remove(cfg.output_dir + "/diagnostics.csv");
-            std::filesystem::remove(cfg.output_dir + "/synthetic_radial_ray.csv");
-        }
 
         if (args.cuda_smoke_test) RunCudaSmokeTest();
 
@@ -141,12 +128,6 @@ int main(int argc, char** argv)
         viz_cfg.modes = cfg.visualizer_modes;
         viz_cfg.format = cfg.visualizer_format;
         viz_cfg.phi_index = cfg.visualizer_phi_index;
-        viz_cfg.autoscale_each_frame = cfg.visualizer_autoscale_each_frame;
-        viz_cfg.dashboard = cfg.visualizer_dashboard;
-        viz_cfg.panel_width = cfg.visualizer_panel_width;
-        viz_cfg.panel_height = cfg.visualizer_panel_height;
-        viz_cfg.margin = cfg.visualizer_margin;
-        viz_cfg.write_individual = cfg.visualizer_write_individual;
 
         if (cfg.visualizer_enabled) Visualizer::WriteMeridionalFrames(grid, cfg.output_dir, 0, viz_cfg);
 
@@ -154,16 +135,8 @@ int main(int argc, char** argv)
         for (int s = 1; s <= cfg.steps; ++s)
         {
             dt_report = TimeStep::ComputeCFL(grid, cfg.requested_dt_seconds, cfg.cfl_safety, cfg.use_cfl_dt);
-
-            // Patch 04 step order:
-            //  1. primitive reconstruction from conserved state
-            //  2. local/body sources: gravity, pressure, rotation, buoyancy, RT-relaxation, chemistry
-            //  3. conservative face-flux advection of mass, momentum, energy, species
-            //  4. boundary projection and diagnostics/rendering
             Dynamics::ApplySourceTerms(grid, dt_report.used_dt, dyn);
-            if (dyn.use_finite_volume_advection) Dynamics::AdvectFiniteVolume(grid, dt_report.used_dt, dyn);
-            else Dynamics::ShiftEpsilon(grid, dt_report.used_dt, dyn);
-            Dynamics::ApplyBoundaryConditions(grid, dyn);
+            Dynamics::ShiftEpsilon(grid, dt_report.used_dt, dyn);
             time_seconds += dt_report.used_dt;
 
             if (cfg.write_diagnostics) Diagnostics::AppendCSV(grid, cfg.output_dir, s, time_seconds, dt_report);
@@ -173,10 +146,7 @@ int main(int argc, char** argv)
             std::cout << "step " << s << " / " << cfg.steps
                       << ", dt=" << dt_report.used_dt
                       << " s, stable_dt=" << dt_report.stable_dt
-                      << " s, t=" << time_seconds << " s";
-            if (cfg.visualizer_enabled && cfg.visualizer_dashboard && (s % cfg.visualizer_every == 0))
-                std::cout << ", dashboard=" << cfg.output_dir << "/frames/dashboard_latest.ppm";
-            std::cout << "\n";
+                      << " s, t=" << time_seconds << " s\n";
         }
 
         if (cfg.write_spectrum)
@@ -192,9 +162,7 @@ int main(int argc, char** argv)
 
         if (cfg.visualizer_enabled)
             std::cout << "Visualizer frames: " << cfg.output_dir << "/frames/*.ppm"
-                      << " (modes: " << cfg.visualizer_modes << ")\n"
-                      << "Latest dashboard: " << cfg.output_dir << "/frames/dashboard_latest.ppm\n"
-                      << "Movie helper: scripts/render/make_movie.sh " << cfg.output_dir << " 12\n";
+                      << " (modes: " << cfg.visualizer_modes << ")\n";
         if (cfg.write_diagnostics)
             std::cout << "Diagnostics: " << cfg.output_dir << "/diagnostics.csv\n";
         return 0;

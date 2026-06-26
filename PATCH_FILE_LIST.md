@@ -1,49 +1,22 @@
-.gitignore
-.vscode/launch.json
-.vscode/tasks.json
-CMakeLists.txt
-CMakePresets.json
-DEPLOY.md
-PATCH_FILE_LIST.md
-README.md
-data/.gitkeep
-data/output/.gitkeep
-data/precomputed/.gitkeep
-data/raw/.gitkeep
-data/runtime/.gitkeep
-scripts/pipeline/build_all_assets.py
-scripts/precompute/export_runtime_assets.py
-scripts/precompute/inspect_h5.py
-scripts/precompute/precompute_cia_hitran.py
-scripts/precompute/precompute_common.py
-scripts/precompute/precompute_h3plus_approx.py
-scripts/precompute/precompute_opacity.py
-scripts/precompute/run_precompute_all.py
-scripts/precompute/validate.py
-scripts/remote/remote_build_cuda.sh
-scripts/remote/sync_to_remote_example.sh
-src/common/Constants.hpp
-src/common/Vec3.hpp
-src/core/Cell.hpp
-src/core/CellGeometry.hpp
-src/core/CellIndex.hpp
-src/core/Grid.cpp
-src/core/Grid.hpp
-src/cuda/CudaHooks.cpp
-src/cuda/CudaHooks.hpp
-src/cuda/CudaRadiativeTransfer.cu
-src/io/RuntimeTable.cpp
-src/io/RuntimeTable.hpp
-src/main.cpp
-src/physics/Dynamics.cpp
-src/physics/Dynamics.hpp
-src/physics/EOS.cpp
-src/physics/EOS.hpp
-src/physics/Layer.hpp
-src/physics/RadiativeTransfer.cpp
-src/physics/RadiativeTransfer.hpp
-src/pipeline/InitialConditions.cpp
-src/pipeline/InitialConditions.hpp
-src/state/ConservedState.hpp
-src/state/PrimitiveState.hpp
-src/state/Species.hpp
+# JupiterRT Patch File List
+
+Patch 04 touches the simulation core and visualizer. Generated outputs, build directories, raw data, precomputed opacity tables, and runtime binary assets are intentionally not part of the patch.
+
+## Modified
+
+- `config/default.sim`
+- `src/config/SimConfig.hpp`
+- `src/config/SimConfig.cpp`
+- `src/pipeline/InitialConditions.hpp`
+- `src/pipeline/InitialConditions.cpp`
+- `src/physics/Dynamics.hpp`
+- `src/physics/Dynamics.cpp`
+- `src/io/Visualizer.hpp`
+- `src/io/Visualizer.cpp`
+- `src/io/Diagnostics.cpp`
+- `src/main.cpp`
+
+## Added
+
+- `PATCH04_NOTES.md`
+- `scripts/render/make_movie.sh`

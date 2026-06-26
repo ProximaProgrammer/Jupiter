@@ -3,6 +3,10 @@
 
 # --- Grid resolution ---
 # Default = 96 x 64 x 128 = 786432 cells.
+# This is the smallest 3D grid I would currently trust for broad Jupiter-scale structure:
+#   nr=96: enough to separate atmosphere / molecular / supercritical / metallic regions.
+#   ntheta=64: ~2.8 deg meridional resolution, enough for belts/zones and limb variation.
+#   nphi=128: ~2.8 deg azimuthal resolution. For fast debugging, set nphi=1 or 16.
 # For quick Mac tests: nr=32, ntheta=24, nphi=48.
 nr = 96
 ntheta = 64
@@ -13,36 +17,17 @@ r_inner_fraction = 0.20
 r_outer_fraction = 1.00
 
 # --- Time stepping ---
-# requested_dt_seconds is capped internally by CFL safety if use_cfl_dt is true.
-requested_dt_seconds = 0.10
-steps = 120
+# requested_dt_seconds is capped internally by CFL safety if --use-cfl-dt is enabled.
+requested_dt_seconds = 0.05
+steps = 3
 use_cfl_dt = true
 cfl_safety = 0.35
 
 # Conservative face-neighbor advection cap. Corner terms remain intentionally neglected as O(epsilon^2).
-epsilon_max = 0.025
-use_finite_volume_advection = true
-
-# --- Physics switches ---
+epsilon_max = 0.01
 include_gravity = true
 include_pressure_gradient = true
 rotating_frame_sources = true
-include_viscosity = true
-include_thermal_diffusion = true
-include_convective_buoyancy = true
-include_radiative_relaxation = true
-include_chemistry = true
-enforce_boundaries = true
-
-# Effective/coarse-grid transport parameters. These are eddy-like parameters used for stable visible evolution,
-# not literal molecular viscosity or conductivity.
-kinematic_viscosity_m2_s = 2.5e7
-thermal_diffusivity_m2_s = 2.5e7
-convective_buoyancy_strength = 0.08
-velocity_drag_timescale_s = 2.5e7
-top_radiative_timescale_s = 2.0e5
-deep_radiative_timescale_s = 2.0e9
-chemistry_timescale_s = 5.0e4
 
 # --- Initial conditions ---
 surface_temperature_K = 165.0
@@ -51,9 +36,6 @@ surface_pressure_Pa = 1.0e5
 deep_pressure_Pa = 5.0e12
 surface_density_kg_m3 = 0.16
 deep_density_kg_m3 = 1400.0
-initial_thermal_perturbation = 0.015
-initial_velocity_perturbation_m_s = 12.0
-initial_seed_modes = 6
 
 # --- Spectral/runtime assets ---
 # These paths can be symlinks. Raw data is not read by the C++ executable yet;
@@ -74,20 +56,13 @@ ray_phi_index = 0
 
 # --- Output / visualizer ---
 output_dir = data/output
-clean_output_on_start = true
 write_spectrum = true
 write_diagnostics = true
 visualizer_enabled = true
-visualizer_every = 4
+visualizer_every = 1
 visualizer_phi_index = 0
 # PPM is dependency-free and viewable with macOS Preview/open.
 visualizer_format = ppm
-# Dashboard writes all selected modes into one large image per timestep.
-# Supported: temperature, velocity, density, pressure, entropy, opacity_proxy
-visualizer_modes = temperature,velocity,density,pressure
-visualizer_dashboard = true
-visualizer_panel_width = 320
-visualizer_panel_height = 480
-visualizer_margin = 24
-visualizer_write_individual = false
-visualizer_autoscale_each_frame = true
+# Comma-separated modes. Keep this small; these are written once per visualizer frame.
+# Supported: temperature, velocity, density, pressure, opacity_proxy
+visualizer_modes = temperature,velocity

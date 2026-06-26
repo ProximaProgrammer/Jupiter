@@ -102,26 +102,3 @@ cmake --build --preset cuda-rtx3060-release -j
 ```
 
 The CUDA kernel currently accelerates the per-layer spectral recurrence once opacities/source vectors have been computed. The next performance step is moving opacity interpolation and many rays onto the GPU, but this version is already build- and SSH-ready for an RTX 3060.
-
-## Patch 04: time-evolving dashboard run
-
-Patch 04 adds a time-dependent simulation loop with finite-volume transport, source terms for gravity/pressure/rotation/convection/diffusion/grey RT relaxation/chemistry, and a large multi-panel dashboard visualizer.
-
-Quick macOS run:
-
-```bash
-cd ~/Documents/Jupiter_v2
-cmake -S . -B build-mac-release
-cmake --build build-mac-release
-./build-mac-release/jupiter --nr 32 --ntheta 24 --nphi 48 --steps 120 --dt 0.1
-open data/output/frames/dashboard_latest.ppm
-```
-
-Create an MP4 from the dashboard frames, if `ffmpeg` is installed:
-
-```bash
-scripts/render/make_movie.sh data/output 12
-open data/output/jupiter_patch04_dashboard.mp4
-```
-
-The large dashboard frames are written to `data/output/frames/dashboard_XXXXXX.ppm`. Individual per-field frames are disabled by default to avoid producing hundreds of megabytes of output; set `visualizer_write_individual = true` in `config/default.sim` if you want them.
